@@ -1,17 +1,17 @@
-import { ValidationMetadata } from 'class-validator/metadata/ValidationMetadata';
-import { getFromContainer, MetadataStorage } from 'class-validator';
+import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
+import { getMetadataStorage } from 'class-validator';
 import faker from 'faker';
 import { PropertyMetadata } from '../../metadata';
 import { Class } from '../..';
 import { BaseMetadataAdapter } from '../../metadata/BaseMetadataAdapter';
 import { FactoryHooks } from 'FactoryHooks';
-export class ClassValidatorAdapter extends BaseMetadataAdapter<
-  ValidationMetadata
-> {
+export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadata> {
   makeOwnMetadata(classType: Class) {
-    return getFromContainer(MetadataStorage).getTargetValidationMetadatas(
+    return getMetadataStorage().getTargetValidationMetadatas(
       classType,
-      ''
+      '',
+      true,
+      false
     );
   }
 
@@ -24,7 +24,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<
       name: cvMeta.propertyName,
     };
 
-    switch (cvMeta.type) {
+    switch (cvMeta.name) {
       case 'isBoolean':
         prop.type = 'boolean';
         prop.scalar = true;

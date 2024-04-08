@@ -14,6 +14,7 @@ seeding or for testing.
 - [Features](#features)
 - [Usage](#usage)
   - [General](#general)
+  - [Using `class-validator` metadatas](#using-class-validator-metadatas)
   - [Customization](#customization)
   - [Factory Options](#factory-options)
     - [Assigner](#assigner)
@@ -25,8 +26,7 @@ seeding or for testing.
 - Leverage `faker.js` for generating random values
 - Support relationships between classes
 - Customizable
-- Support `class-validator@0.11.x` decorators. (`type-graphql` to come at a latter date)  
-  **Version 0.12.x is broken and doesn't store the decorator names, so it's impossible for this lib to work alongside.**
+- Support `class-validator@0.14.x` decorators. (`type-graphql` to come at a latter date)  
 
 ## Usage
 
@@ -74,8 +74,7 @@ If you happen to use `class-validator` decorators for your entities, you can gen
 import 'class-fixtures-factory/plugins/class-validator';
 ```
 
-Note that this will require having `class-validator` version `0.11` to be installed.
-**Version 0.12.x+ is broken and doesn't store the decorator names, so it's impossible for this lib to work alongside.**
+Note that this will require having `class-validator` version `0.14` or higher to be installed.
 
 ### Customization
 
