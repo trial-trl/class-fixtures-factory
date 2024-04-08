@@ -1,7 +1,7 @@
 {
   "version": "1.6.1",
-  "name": "class-fixtures-factory",
-  "author": "CyriacBr",
+  "name": "@trial-trl/class-fixtures-factory",
+  "author": "Matheus Leonardo <mlsm@trialent.com>",
   "license": "MIT",
   "keywords": [
     "typescript",
@@ -14,7 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/CyriacBr/class-fixtures-factory.git"
+    "url": "https://github.com/trial-trl/class-fixtures-factory.git"
   },
   "main": "dist/class-fixtures-factory.cjs.js",
   "typings": "dist/class-fixtures-factory.cjs.d.ts",

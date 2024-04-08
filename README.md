@@ -1,4 +1,4 @@
-![CI](https://github.com/CyriacBr/class-fixtures-factory/workflows/CI/badge.svg)
+![CI](https://github.com/trial-trl/class-fixtures-factory/workflows/CI/badge.svg)
 
 # class-fixtures-factory <!-- omit in toc -->
 
