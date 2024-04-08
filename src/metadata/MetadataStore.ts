@@ -18,6 +18,7 @@ export interface ClassMetadata {
 export interface PropertyMetadata {
   name: string;
   type: string | Class;
+  runtimeType: string;
   scalar?: boolean;
   enum?: boolean;
   items?: any[];
@@ -26,6 +27,7 @@ export interface PropertyMetadata {
   min?: number | Date;
   max?: number | Date;
   precision?: number;
+  readOnly?: boolean;
   /**
    * A value that completely bypass everything and sets the generate value equals to its own
    */
@@ -80,7 +82,7 @@ export class MetadataStore {
       const meta = adapter
         .makeOwnMetadata(classType, this.adapterContext, options)
         .filter(Boolean);
-      adapterMetadata.push(...meta.map(v => ({ adapter, ...v })));
+      adapterMetadata.push(...meta.map((v) => ({ adapter, ...v })));
     }
 
     const unknownTypes = new Set<string>();
@@ -88,7 +90,7 @@ export class MetadataStore {
      * Metadata from reflection
      */
     let reflectProps = reflectMetadata.properties
-      .map(prop => this.makePropertyMetadata(prop)!)
+      .map((prop) => this.makePropertyMetadata(prop)!)
       .filter(Boolean);
 
     for (const reflectProp of reflectProps) {
@@ -100,8 +102,8 @@ export class MetadataStore {
 
     const allPropNames = [
       ...new Set([
-        ...adapterMetadata.map(v => v.propertyName),
-        ...reflectProps.map(v => v.name),
+        ...adapterMetadata.map((v) => v.propertyName),
+        ...reflectProps.map((v) => v.name),
       ]),
     ];
 
@@ -112,7 +114,7 @@ export class MetadataStore {
      */
     const finalProps: PropertyMetadata[] = [];
     for (const propName of allPropNames) {
-      const reflectProp = reflectProps.find(prop => prop.name === propName);
+      const reflectProp = reflectProps.find((prop) => prop.name === propName);
       if (reflectProp?.ignore || !!reflectProp?.input) {
         finalProps.push(reflectProp);
         continue;
@@ -120,7 +122,7 @@ export class MetadataStore {
 
       const propHooks = new FactoryHooks();
       const adapterProps = adapterMetadata.filter(
-        v => v.propertyName === propName
+        (v) => v.propertyName === propName
       );
       const finalDeducedProp: PropertyMetadata = reflectProp || ({} as any);
       for (const metaProp of adapterProps) {
@@ -146,7 +148,7 @@ export class MetadataStore {
     if (unknownTypes.size > 0) {
       throw new Error(
         `Couldn't extract the type of ${[...unknownTypes]
-          .map(v => `"${v}"`)
+          .map((v) => `"${v}"`)
           .join(', ')}. Use @Fixture({ type: () => Foo })`
       );
     }
@@ -247,6 +249,6 @@ export class MetadataStore {
   }
 
   private getFixtureDecorator(prop: PropertyReflection): FixtureOptions {
-    return prop.decorators.find(v => v.type === 'Fixture')?.value || null;
+    return prop.decorators.find((v) => v.type === 'Fixture')?.value || null;
   }
 }

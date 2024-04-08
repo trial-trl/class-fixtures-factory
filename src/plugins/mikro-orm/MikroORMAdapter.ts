@@ -23,12 +23,17 @@ export class MikroORMAdapter extends BaseMetadataAdapter<Metadata> {
     options?: DeepRequired<FactoryOptions>
   ): Metadata[] {
     this.options = options;
-    const meta = adapterContext.orm.getMetadata().get(classType.name);
-    return Object.entries(meta.properties).map(([name, m]) => ({
-      propertyName: name,
-      propertyMeta: m,
-      uniqueMeta: meta.uniques.filter(v => v.properties.includes(name)),
-    }));
+    if (adapterContext.orm.getMetadata().has(classType.name)) {
+      const meta = adapterContext.orm.getMetadata().get(classType.name);
+      return Object.entries(meta.properties)
+        .filter(([, m]) => !('embedded' in m))
+        .map(([name, m]) => ({
+          propertyName: name,
+          propertyMeta: m,
+          uniqueMeta: meta.uniques.filter((v) => v.properties.includes(name)),
+        }));
+    }
+    return [];
   }
 
   deduceMetadata(
@@ -46,12 +51,36 @@ export class MikroORMAdapter extends BaseMetadataAdapter<Metadata> {
     const { type } = meta;
 
     const uniqueIndex = ownProp.uniqueMeta[0];
+
+    if ('getter' in meta && 'setter' in meta && meta.getter && !meta.setter) {
+      prop.readOnly = true;
+    }
+
     if (uniqueIndex) {
       prop.unique = true;
       prop.uniqueCacheKey =
         typeof uniqueIndex.properties === 'string'
           ? uniqueIndex.properties
           : uniqueIndex.properties.join('-');
+    }
+
+    if ((meta.runtimeType as string) === 'array') {
+      const itemType = meta.columnTypes[0].replace('[]', '');
+
+      return {
+        ...prop,
+        scalar: true,
+        array: true,
+        type: itemType === 'text' ? 'string' : itemType,
+      };
+    }
+
+    if (meta.runtimeType === 'Date') {
+      return { ...prop, type: 'date', scalar: true };
+    }
+
+    if (type.endsWith('Type')) {
+      return { ...prop, type: meta.runtimeType };
     }
 
     if (meta.default) {
@@ -72,12 +101,12 @@ export class MikroORMAdapter extends BaseMetadataAdapter<Metadata> {
       };
     }
 
-    if (meta.reference !== 'scalar') {
+    if (!!meta.kind && meta.kind !== 'scalar') {
       return {
         ...prop,
         type,
         scalar: false,
-        array: ['1:m', 'm:n'].includes(meta.reference),
+        array: ['1:m', 'm:n'].includes(meta.kind),
       };
     }
 
@@ -94,6 +123,8 @@ export class MikroORMAdapter extends BaseMetadataAdapter<Metadata> {
       return {
         ...prop,
         type,
+        unique: true,
+        scalar: true,
       };
     }
 

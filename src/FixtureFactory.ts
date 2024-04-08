@@ -288,15 +288,18 @@ export class FixtureFactory {
           if (typeof p === 'symbol') return target[p];
           // - if the requested prop is already generated, we just return it
           if (p in target) return target[p];
-          const prop = meta.properties.find(v => v.name === p);
+          const prop = meta.properties.find((v) => v.name === p);
           if (!prop) {
             return undefined;
           }
           const newCtx = this._preparePropertyGeneration(ctx, proxy);
           newCtx.path.push(`${meta.name}.${prop.name}`);
+          if (prop.ignore) return undefined;
           let value = this.makeProperty(prop, meta, newCtx);
-          value = prop.hooks?.[SECRET].afterValueGenerated?.(value) ?? value;
-          // TODO: use assigner and prop.ignore too
+          if (typeof value !== 'undefined' && value !== null) {
+            value = prop.hooks?.[SECRET].afterValueGenerated?.(value) ?? value;
+            this.assigner(prop, object, value);
+          }
           return (target[p] = value);
         },
       });
@@ -310,8 +313,10 @@ export class FixtureFactory {
       newCtx.path.push(`${meta.name}.${prop.name}`);
       if (prop.ignore) continue;
       let value = this.makeProperty(prop, meta, newCtx);
-      value = prop.hooks?.[SECRET].afterValueGenerated?.(value) ?? value;
-      this.assigner(prop, object, value);
+      if (typeof value !== 'undefined' && value !== null) {
+        value = prop.hooks?.[SECRET].afterValueGenerated?.(value) ?? value;
+        this.assigner(prop, object, value);
+      }
     }
     return object;
   }
@@ -348,8 +353,10 @@ export class FixtureFactory {
     ctx: FactoryContext
   ): any {
     const convertedPath = ctx.path
-      .map(v => v.split('.').reverse()[0])
+      .map((v) => v.split('.').reverse()[0])
       .join('.');
+    if (prop.readOnly || prop.type === 'any' || prop.runtimeType === 'unknown')
+      return undefined;
     if (ctx.ignoredPaths.includes(convertedPath)) {
       this.logger.onIgnoreProp(ctx.path);
       return undefined;
@@ -577,8 +584,9 @@ export class FixtureFactory {
       propReuseCircularRelationships = false;
     }
 
-    const occurrenceNbr = newCtx.path.filter(v => v.startsWith(typeName))
-      .length;
+    const occurrenceNbr = newCtx.path.filter((v) =>
+      v.startsWith(typeName)
+    ).length;
     /**
      * If we are generating an array item, we inflate the max number
      * of occurrence so that each item in the array is unique.
@@ -608,7 +616,7 @@ export class FixtureFactory {
       occurrenceNbr >= propMaxOccurrencesPerPath
     ) {
       const instances = newCtx.pathReferences.filter(
-        v => v.constructor.name === typeName
+        (v) => v.constructor.name === typeName
       );
       const getLastInstance = (): null | object => {
         let instance = instances.pop();
