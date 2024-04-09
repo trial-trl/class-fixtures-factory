@@ -72,7 +72,7 @@
     "prettier": "^3.2.5",
     "reflect-metadata": "^0.1.13",
     "shx": "^0.3.3",
-    "sqlite3": "^5.0.2",
+    "sqlite3": "^5.1.7",
     "standard-version": "7.1.0",
     "ts-node": "^10.1.0",
     "tsdx": "^0.14.1",
@@ -160,5 +160,6 @@
       "./plugins/typeorm/index.ts",
       "./plugins/mikro-orm/index.ts"
     ]
-  }
+  },
+  "packageManager": "yarn@1.19.1"
 }
