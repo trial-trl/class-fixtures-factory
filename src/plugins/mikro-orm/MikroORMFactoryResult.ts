@@ -4,7 +4,7 @@ import { FactoryMakeFn, FactoryResult } from '../../FactoryResult';
 
 export class MikroORMFactoryResult<
   T extends Class<any>,
-  R = InstanceType<T>
+  R = InstanceType<T>,
 > extends FactoryResult<T, R> {
   constructor(
     protected orm: MikroORM,
@@ -22,7 +22,7 @@ export class MikroORMFactoryResult<
    */
   async oneAndPersist(): Promise<R> {
     const stats = this.withStats().one();
-    this.orm.em.persist(stats.result);
+    this.orm.em.persist(stats.result as object);
     await this.orm.em.flush();
     return stats.result;
   }
@@ -34,7 +34,7 @@ export class MikroORMFactoryResult<
   async manyAndPersist(nbr: number): Promise<R[]> {
     const result: R[] = Array(nbr)
       .fill(0)
-      .map(v =>
+      .map((v) =>
         new MikroORMFactoryResult(
           this.orm,
           this.makeFn,

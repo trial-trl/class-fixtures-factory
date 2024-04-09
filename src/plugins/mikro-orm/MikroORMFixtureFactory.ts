@@ -8,7 +8,10 @@ import {
 import { MikroORMFactoryResult } from './MikroORMFactoryResult';
 
 export class MikroORMFixtureFactory extends FixtureFactory {
-  constructor(protected orm: MikroORM, options?: FactoryOptions) {
+  constructor(
+    protected orm: MikroORM,
+    options?: FactoryOptions
+  ) {
     super({
       ...(options || {}),
       adapterContext: {
@@ -22,17 +25,17 @@ export class MikroORMFixtureFactory extends FixtureFactory {
   private registerEntities() {
     const metadata = this.orm.getMetadata();
     const entityNames = Object.keys(metadata.getAll()).filter(
-      v => v[0] === v[0].toUpperCase()
+      (v) => v[0] === v[0].toUpperCase()
     );
     for (const name of entityNames) {
       const classType = metadata.get(name).class;
-      this.register([classType]);
+      this.register([classType as Class]);
     }
   }
 
   private assignerFn(prop: PropertyMetadata, obj: any, value: any) {
     if (Array.isArray(value) && obj[prop.name] instanceof Collection) {
-      (obj[prop.name] as Collection<any>).add(...value);
+      (obj[prop.name] as Collection<any>).add(value.shift(), ...value);
     } else {
       obj[prop.name] = value;
     }
