@@ -1,6 +1,6 @@
 import { MetadataStore, ClassMetadata, PropertyMetadata } from './metadata';
 import { Class } from './common/typings';
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 import chalk from 'chalk';
 import { FactoryLogger } from './FactoryLogger';
 import { DeepKeyOf, DeepRequired } from 'utils/types';
@@ -391,7 +391,7 @@ export class FixtureFactory {
 
   protected makeScalarProperty(prop: PropertyMetadata, meta: ClassMetadata) {
     if (prop.items) {
-      return faker.random.arrayElement(prop.items);
+      return faker.helpers.arrayElement(prop.items);
     }
 
     if (prop.unique) {
@@ -407,7 +407,7 @@ export class FixtureFactory {
       }
       return prop.type === 'number'
         ? ++(FixtureFactory.Generator[key] as number)
-        : faker.random.uuid();
+        : faker.string.uuid();
     }
 
     let { min, max } = prop;
@@ -435,17 +435,17 @@ export class FixtureFactory {
           if (prop.hooks?.[SECRET].hasGenerateScalarCallback()) {
             return prop.hooks[SECRET].onGenerateScalar(numberMin, numberMax);
           }
-          const ln = faker.random.number({ min: numberMin, max: numberMax });
+          const ln = faker.number.int({ min: numberMin, max: numberMax });
           let value = '';
           while (value.length < ln) {
-            value += faker.random.word();
+            value += faker.lorem.word();
           }
           value = value.slice(0, ln);
           return value;
         }
         return (
           prop.hooks?.[SECRET].onGenerateScalar?.(undefined, undefined) ??
-          faker.random.word()
+          faker.lorem.word()
         );
       }
       case 'alphanumeric': {
@@ -453,12 +453,12 @@ export class FixtureFactory {
           if (prop.hooks?.[SECRET].hasGenerateScalarCallback()) {
             return prop.hooks[SECRET].onGenerateScalar(numberMin, numberMax);
           }
-          const ln = faker.random.number({ min: numberMin, max: numberMax });
-          return faker.random.alphaNumeric(ln);
+          const ln = faker.number.int({ min: numberMin, max: numberMax });
+          return faker.string.alphanumeric(ln);
         }
         return (
           prop.hooks?.[SECRET].onGenerateScalar?.(undefined, undefined) ??
-          faker.random.alphaNumeric()
+          faker.string.alphanumeric()
         );
       }
       case 'number': {
@@ -469,7 +469,7 @@ export class FixtureFactory {
               numberMax,
               prop.precision
             ) ??
-            faker.random.number({
+            faker.number.float({
               min: numberMin,
               max: numberMax,
               precision: prop.precision ? prop.precision / 100 : undefined,
@@ -478,13 +478,13 @@ export class FixtureFactory {
         }
         return (
           prop.hooks?.[SECRET].onGenerateScalar?.(undefined, undefined) ??
-          faker.random.number()
+          faker.number.float()
         );
       }
       case 'boolean':
         return (
           prop.hooks?.[SECRET].onGenerateScalar?.(undefined, undefined) ??
-          faker.random.boolean()
+          faker.datatype.boolean()
         );
       case 'date':
       case 'Date': {
@@ -499,15 +499,15 @@ export class FixtureFactory {
           const dateMax = max != null && max instanceof Date ? max : null;
           let value: Date;
           if (dateMin) {
-            value = faker.date.between(
-              dateMin,
-              dateMax || faker.date.future(1, dateMin)
-            );
+            value = faker.date.between({
+              from: dateMin,
+              to: dateMax || faker.date.future({ years: 1, refDate: dateMin }),
+            });
           } else if (dateMax) {
-            value = faker.date.between(
-              dateMin || faker.date.past(1, dateMax),
-              dateMax
-            );
+            value = faker.date.between({
+              from: dateMin || faker.date.past({ years: 1, refDate: dateMax }),
+              to: dateMax,
+            });
           } else {
             value = faker.date.recent();
           }
@@ -529,7 +529,7 @@ export class FixtureFactory {
     meta: ClassMetadata,
     ctx: FactoryContext
   ) {
-    const amount = faker.random.number({
+    const amount = faker.number.int({
       max: typeof prop.max === 'number' ? prop.max : 3,
       min: typeof prop.min === 'number' ? prop.min : 1,
     });

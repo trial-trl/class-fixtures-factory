@@ -1,6 +1,6 @@
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
 import { getMetadataStorage } from 'class-validator';
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { PropertyMetadata } from '../../metadata';
 import { Class } from '../..';
 import { BaseMetadataAdapter } from '../../metadata/BaseMetadataAdapter';
@@ -101,7 +101,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
         const value = cvMeta.constraints[0];
         propHooks.setOnGenerateScalar((_min?: number, _max?: number) => {
           // TODO: support min/max
-          return `${faker.random.word()}${value}${faker.random.word()}`;
+          return `${faker.lorem.word()}${value}${faker.lorem.word()}`;
         });
         prop.type = 'string';
         prop.scalar = true;
@@ -109,7 +109,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
       }
       case 'isAlpha':
         propHooks.addAfterValueGenerated((value: string) =>
-          value.replace(/\d/g, faker.random.word()[0])
+          value.replace(/\d/g, faker.lorem.word()[0])
         );
         prop.type = 'string';
         prop.scalar = true;
@@ -124,7 +124,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
         prop.scalar = true;
         propHooks.setOnGenerateScalar((min?: number, max?: number) => {
           const digits = Number(data.decimal_digits || '1');
-          return parseFloat(faker.finance.amount(min, max, digits));
+          return parseFloat(faker.finance.amount({ min, max, dec: digits }));
         });
         break;
       }
@@ -144,11 +144,14 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
         };
       case 'isHexColor':
         propHooks.setOverride(() => faker.internet.color());
-        return {
-          ...prop,
-          type: 'string',
-          scalar: true,
-        };
+        prop.type = 'string';
+        prop.scalar = true;
+        break;
+      case 'isHexadecimal':
+        propHooks.setOverride(() => faker.string.hexadecimal());
+        prop.type = 'string';
+        prop.scalar = true;
+        break;
       case 'isLowercase':
         prop.type = 'string';
         prop.scalar = true;
@@ -163,7 +166,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
           value.toUpperCase()
         );
         break;
-      case 'length': {
+      case 'isLength': {
         const [min, max] = cvMeta.constraints as [number, number];
         prop.min = min;
         prop.max = max;

@@ -170,7 +170,10 @@ export class MetadataStore {
     };
     if (decorator) {
       if (typeof decorator === 'function') {
-        meta.input = decorator.bind(decorator, require('faker'));
+        meta.input = decorator.bind(
+          decorator,
+          require('@faker-js/faker').faker
+        );
       } else if (typeof decorator === 'string') {
         meta.input = () => decorator;
       } else if (typeof decorator === 'object') {

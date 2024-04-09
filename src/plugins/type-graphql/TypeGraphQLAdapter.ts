@@ -3,7 +3,7 @@ import { getMetadataStorage, ID, Int, Float } from 'type-graphql';
 import { GraphQLScalarType } from 'graphql';
 import { FieldMetadata as BaseFieldMetadata } from 'type-graphql/dist/metadata/definitions';
 import { Class } from '../..';
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { MetadataStorage } from 'type-graphql/dist/metadata/metadata-storage';
 import { FactoryHooks } from '../../FactoryHooks';
 
@@ -16,14 +16,14 @@ export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
 
   makeOwnMetadata(classType: Class): FieldMetadata[] {
     const store = (this.store = getMetadataStorage());
-    const objectType = store.objectTypes.find(v => v.target === classType);
-    const fields = store.fields.filter(v => v.target === classType);
+    const objectType = store.objectTypes.find((v) => v.target === classType);
+    const fields = store.fields.filter((v) => v.target === classType);
     if (objectType && objectType.interfaceClasses) {
       for (const interfaceClass of objectType.interfaceClasses) {
-        fields.push(...store.fields.filter(v => v.target === interfaceClass));
+        fields.push(...store.fields.filter((v) => v.target === interfaceClass));
       }
     }
-    return fields.map(v => ({
+    return fields.map((v) => ({
       ...v,
       propertyName: v.name,
     }));
@@ -44,7 +44,7 @@ export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
 
     switch (gqlType) {
       case ID:
-        propHooks.setOnGenerateScalar(() => faker.random.uuid());
+        propHooks.setOnGenerateScalar(() => faker.string.uuid());
         return {
           ...prop,
           type: 'string',
@@ -58,7 +58,7 @@ export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
       case Float:
         // TODO: supports min-max
         propHooks.setOnGenerateScalar(() =>
-          faker.random.number({
+          faker.number.float({
             precision: 0.01,
           })
         );
@@ -94,7 +94,7 @@ export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
     }
 
     const isEnum = this.store.enums.some(
-      v => JSON.stringify(v.enumObj) === JSON.stringify(gqlType)
+      (v) => JSON.stringify(v.enumObj) === JSON.stringify(gqlType)
     );
     if (isEnum) {
       /**
@@ -114,7 +114,7 @@ export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
        */
       // TODO: use prop.items instead
       propHooks.setOnGenerateScalar(() =>
-        faker.random.arrayElement(
+        faker.helpers.arrayElement(
           Object.entries(gqlType as Record<string, string | number>)
             .filter(([_, value]) => typeof value === 'string')
             .map(([_, value]) => value)

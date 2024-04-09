@@ -53,17 +53,11 @@ export class MikroORMUser {
   @Fixture({ max: 1 })
   favorites = new Collection<MikroORMFavorite>(this);
 
-  @OneToMany(
-    () => MikroORMFollow,
-    (follow: MikroORMFollow) => follow.follower
-  )
+  @OneToMany(() => MikroORMFollow, (follow: MikroORMFollow) => follow.follower)
   @Fixture({ max: 1 })
   followers = new Collection<MikroORMFollow>(this);
 
-  @OneToMany(
-    () => MikroORMFollow,
-    (follow: MikroORMFollow) => follow.following
-  )
+  @OneToMany(() => MikroORMFollow, (follow: MikroORMFollow) => follow.following)
   @Fixture({ max: 1 })
   following = new Collection<MikroORMFollow>(this);
 }
@@ -163,7 +157,7 @@ export class MikroORMFollow {
 
 @Entity({ tableName: 'tags' })
 export class MikroORMTag {
-  @Fixture(faker => faker.random.uuid())
+  @Fixture((faker) => faker.string.uuid())
   @PrimaryKey()
   label!: string;
 

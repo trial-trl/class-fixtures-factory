@@ -1,9 +1,10 @@
+import { Faker } from '@faker-js/faker';
 import { decorate } from 'tinspector';
 
 export type FixtureOptions =
   | string
   // eslint-disable-next-line no-undef
-  | ((faker: Faker.FakerStatic) => string | undefined)
+  | ((faker: Faker) => string | undefined)
   | (() => any)
   | {
       type?: () => object;
@@ -13,7 +14,7 @@ export type FixtureOptions =
       max?: number | Date;
       precision?: number;
       // eslint-disable-next-line no-undef
-      get?: ((faker: Faker.FakerStatic) => string | undefined) | (() => any);
+      get?: ((faker: Faker) => string | undefined) | (() => any);
       maxDepthLevel?: number;
       reuseCircularRelationships?: boolean;
       doNotReuseDirectFriendship?: boolean;
