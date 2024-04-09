@@ -38,7 +38,7 @@ export class FactoryResult<T extends Class, R = InstanceType<T>> {
         // We discard the stacktrace because it is too long
         error = new Error(err.message);
       } else {
-        error = err;
+        error = err as any;
       }
       console.error(error);
     }
@@ -62,7 +62,7 @@ export class FactoryResult<T extends Class, R = InstanceType<T>> {
   many(nbr: number): R[] {
     return Array(nbr)
       .fill(0)
-      .map(_ =>
+      .map((_) =>
         new FactoryResult<T>(
           this.makeFn,
           this.factory,
