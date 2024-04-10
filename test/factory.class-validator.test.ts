@@ -28,6 +28,27 @@ import {
   IsNumberString,
   IsDate,
   IsOptional,
+  IsLatitude,
+  isLatitude,
+  IsLongitude,
+  isLongitude,
+  IsUrl,
+  isURL,
+  IsPhoneNumber,
+  IsMobilePhone,
+  IsDateString,
+  isDateString,
+  IsUUID,
+  isUUID,
+  IsCurrency,
+  isCurrency,
+  IsCreditCard,
+  IsStrongPassword,
+  isStrongPassword,
+  IsPostalCode,
+  isPostalCode,
+  IsMongoId,
+  isMongoId,
 } from 'class-validator';
 import '../src/plugins/class-validator';
 
@@ -360,6 +381,138 @@ describe(`FixtureFactory`, () => {
 
       const dummy = factory.make(Dummy).one();
       expect(dummy.val).toBeInstanceOf(Date);
+    });
+
+    it(`@IsLatitude()`, () => {
+      class Dummy {
+        @IsLatitude()
+        val!: number;
+      }
+      factory.register([Dummy]);
+
+      const dummy = factory.make(Dummy).one();
+      expect(isLatitude(String(dummy.val))).toBe(true);
+    });
+
+    it(`@IsLongitude()`, () => {
+      class Dummy {
+        @IsLongitude()
+        val!: number;
+      }
+      factory.register([Dummy]);
+
+      const dummy = factory.make(Dummy).one();
+      expect(isLongitude(String(dummy.val))).toBe(true);
+    });
+
+    it(`@IsUrl()`, () => {
+      class Dummy {
+        @IsUrl()
+        val!: string;
+      }
+      factory.register([Dummy]);
+
+      const dummy = factory.make(Dummy).one();
+      expect(isURL(dummy.val)).toBe(true);
+    });
+
+    it(`@IsPhoneNumber()`, () => {
+      class Dummy {
+        @IsPhoneNumber()
+        val!: string;
+      }
+      factory.register([Dummy]);
+
+      const dummy = factory.make(Dummy).one();
+      expect(/^[\d-\sx+().]+$/.test(dummy.val)).toBe(true);
+    });
+
+    it(`@IsMobilePhone()`, () => {
+      class Dummy {
+        @IsMobilePhone()
+        val!: string;
+      }
+      factory.register([Dummy]);
+
+      const dummy = factory.make(Dummy).one();
+      expect(/^[\d-\sx+().]+$/.test(dummy.val)).toBe(true);
+    });
+
+    it(`@IsDateString()`, () => {
+      class Dummy {
+        @IsDateString()
+        val!: string;
+      }
+      factory.register([Dummy]);
+
+      const dummy = factory.make(Dummy).one();
+      expect(isDateString(dummy.val)).toBe(true);
+    });
+
+    it(`@IsUUID()`, () => {
+      class Dummy {
+        @IsUUID()
+        val!: string;
+      }
+      factory.register([Dummy]);
+
+      const dummy = factory.make(Dummy).one();
+      expect(isUUID(dummy.val)).toBe(true);
+    });
+
+    it(`@IsCurrency()`, () => {
+      class Dummy {
+        @IsCurrency()
+        val!: string;
+      }
+      factory.register([Dummy]);
+
+      const dummy = factory.make(Dummy).one();
+      expect(isCurrency(dummy.val)).toBe(true);
+    });
+
+    it(`@IsCreditCard()`, () => {
+      class Dummy {
+        @IsCreditCard()
+        val!: string;
+      }
+      factory.register([Dummy]);
+
+      const dummy = factory.make(Dummy).one();
+      expect(/^[\d-]+$/.test(dummy.val)).toBe(true);
+    });
+
+    it(`@IsStrongPassword()`, () => {
+      class Dummy {
+        @IsStrongPassword()
+        val!: string;
+      }
+      factory.register([Dummy]);
+
+      const dummy = factory.make(Dummy).one();
+      expect(isStrongPassword(dummy.val)).toBe(true);
+    });
+
+    it(`@IsPostalCode()`, () => {
+      class Dummy {
+        @IsPostalCode('any')
+        val!: string;
+      }
+      factory.register([Dummy]);
+
+      const dummy = factory.make(Dummy).one();
+      expect(isPostalCode(dummy.val, 'any')).toBe(true);
+    });
+
+    it(`@IsMongoId()`, () => {
+      class Dummy {
+        @IsMongoId()
+        val!: string;
+      }
+      factory.register([Dummy]);
+
+      const dummy = factory.make(Dummy).one();
+      expect(isMongoId(dummy.val)).toBe(true);
     });
 
     describe(`Multiple decorators`, () => {

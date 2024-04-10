@@ -24,8 +24,13 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
       name: cvMeta.propertyName,
     };
 
+    if (cvMeta.each) {
+      prop.array = true;
+    }
+
     switch (cvMeta.name) {
       case 'isBoolean':
+      case 'isBooleanString':
         prop.type = 'boolean';
         prop.scalar = true;
         break;
@@ -207,6 +212,82 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
         prop.max = value;
         break;
       }
+      case 'isLatitude': {
+        propHooks.setOverride(() => faker.location.latitude());
+        prop.type = 'number';
+        prop.scalar = true;
+        break;
+      }
+      case 'isLongitude': {
+        propHooks.setOverride(() => faker.location.longitude());
+        prop.type = 'number';
+        prop.scalar = true;
+        break;
+      }
+      case 'isUrl': {
+        propHooks.setOverride(() => faker.internet.url());
+        prop.type = 'number';
+        prop.scalar = true;
+        break;
+      }
+      case 'isPhoneNumber':
+      case 'isMobilePhone': {
+        propHooks.setOverride(() => faker.phone.number());
+        prop.type = 'string';
+        prop.scalar = true;
+        break;
+      }
+      case 'isDateString': {
+        propHooks.setOverride(() => faker.date.recent().toISOString());
+        prop.type = 'string';
+        prop.scalar = true;
+        break;
+      }
+      case 'isUuid': {
+        propHooks.setOverride(() => faker.string.uuid());
+        prop.type = 'string';
+        prop.scalar = true;
+        break;
+      }
+      case 'isCurrency': {
+        propHooks.setOverride(() => faker.finance.amount());
+        prop.type = 'string';
+        prop.scalar = true;
+        break;
+      }
+      case 'isCreditCard': {
+        propHooks.setOverride(() => faker.finance.creditCardNumber());
+        prop.type = 'string';
+        prop.scalar = true;
+        break;
+      }
+      case 'isStrongPassword': {
+        propHooks.setOverride(() =>
+          faker.internet.password({
+            length: 24,
+            pattern: /[a-zA-Z0-9!@#$%^&*()\\/-_+]/,
+          })
+        );
+        prop.type = 'string';
+        prop.scalar = true;
+        break;
+      }
+      case 'isPostalCode': {
+        propHooks.setOverride(() => faker.location.zipCode());
+        prop.type = 'string';
+        prop.scalar = true;
+        break;
+      }
+      case 'isMongoId': {
+        propHooks.setOverride(() => faker.database.mongodbObjectId());
+        prop.type = 'string';
+        prop.scalar = true;
+        break;
+      }
+    }
+
+    if (!prop.type && _reflectProp?.type) {
+      prop.type = _reflectProp.type;
     }
 
     return prop;
