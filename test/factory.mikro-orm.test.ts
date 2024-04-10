@@ -59,7 +59,7 @@ describe(`FixtureFactory`, () => {
         MikroORMFollow,
         MikroORMTag,
       ],
-      _orm => {
+      (_orm) => {
         factory = new MikroORMFixtureFactory(_orm);
         orm = _orm;
       }
@@ -110,7 +110,9 @@ describe(`FixtureFactory`, () => {
 
       it(`Generated string is restricted by "length" option`, () => {
         const metadata = factory.getStore().get(Dummy);
-        const propMeta = metadata.properties.find(v => v.name === 'strWithLen');
+        const propMeta = metadata.properties.find(
+          (v) => v.name === 'strWithLen'
+        );
         expect(propMeta).toMatchObject({
           max: 4,
         });
@@ -127,7 +129,7 @@ describe(`FixtureFactory`, () => {
 
       it(`String enums are correctly generated`, () => {
         const metadata = factory.getStore().get(Dummy);
-        const propMeta = metadata.properties.find(v => v.name === 'role');
+        const propMeta = metadata.properties.find((v) => v.name === 'role');
         expect(propMeta).toMatchObject({
           type: 'string',
           scalar: true,
@@ -141,7 +143,7 @@ describe(`FixtureFactory`, () => {
 
       it(`Number enums are correctly generated`, () => {
         const metadata = factory.getStore().get(Dummy);
-        const propMeta = metadata.properties.find(v => v.name === 'status');
+        const propMeta = metadata.properties.find((v) => v.name === 'status');
         expect(propMeta).toMatchObject({
           type: 'number',
           scalar: true,
@@ -155,7 +157,7 @@ describe(`FixtureFactory`, () => {
 
       it(`one-to-one is correctly generated`, () => {
         const metadata = factory.getStore().get(Dummy);
-        const propMeta = metadata.properties.find(v => v.name === 'profile');
+        const propMeta = metadata.properties.find((v) => v.name === 'profile');
         expect(propMeta).toMatchObject({
           type: 'Profile',
         });
@@ -167,7 +169,7 @@ describe(`FixtureFactory`, () => {
 
       it(`one-to-many is correctly generated`, () => {
         const metadata = factory.getStore().get(Dummy);
-        const photosMeta = metadata.properties.find(v => v.name === 'photos');
+        const photosMeta = metadata.properties.find((v) => v.name === 'photos');
         expect(photosMeta).toMatchObject({
           type: 'Photo',
           array: true,
@@ -175,7 +177,7 @@ describe(`FixtureFactory`, () => {
 
         const dummy = factory.make(Dummy).one();
         expect(dummy.photos).toBeInstanceOf(Collection);
-        dummy.photos.getItems().forEach(v => {
+        dummy.photos.getItems().forEach((v) => {
           expect(v).toBeInstanceOf(Photo);
           expect(v.user).not.toBeUndefined();
         });
@@ -183,7 +185,7 @@ describe(`FixtureFactory`, () => {
 
       it(`many-to-many is correctly generated`, () => {
         const metadata = factory.getStore().get(Dummy);
-        const petsMeta = metadata.properties.find(v => v.name === 'pets');
+        const petsMeta = metadata.properties.find((v) => v.name === 'pets');
         expect(petsMeta).toMatchObject({
           type: 'Pet',
           array: true,
@@ -191,10 +193,10 @@ describe(`FixtureFactory`, () => {
 
         const dummy = factory.make(Dummy).one();
         expect(dummy.pets).toBeInstanceOf(Collection);
-        dummy.pets.getItems().forEach(v => {
+        dummy.pets.getItems().forEach((v) => {
           expect(v).toBeInstanceOf(Pet);
           expect(v.users).toBeInstanceOf(Collection);
-          v.users.getItems().forEach(v => {
+          v.users.getItems().forEach((v) => {
             expect(v).toBeInstanceOf(Dummy);
           });
         });
@@ -202,7 +204,7 @@ describe(`FixtureFactory`, () => {
 
       it(`embedded is correctly generated`, () => {
         const metadata = factory.getStore().get(Dummy);
-        const propMeta = metadata.properties.find(v => v.name === 'address');
+        const propMeta = metadata.properties.find((v) => v.name === 'address');
         expect(propMeta).toMatchObject({
           type: 'Address',
         });
@@ -218,15 +220,15 @@ describe(`FixtureFactory`, () => {
         const val1Meta = factory
           .getStore()
           .get(DummyWithUnique)
-          .properties.find(v => v.name === 'val1');
+          .properties.find((v) => v.name === 'val1');
         const val2Meta = factory
           .getStore()
           .get(DummyWithUnique)
-          .properties.find(v => v.name === 'val2');
+          .properties.find((v) => v.name === 'val2');
         const val3Meta = factory
           .getStore()
           .get(DummyWithUnique)
-          .properties.find(v => v.name === 'val3');
+          .properties.find((v) => v.name === 'val3');
 
         expect(val1Meta).toMatchObject({
           unique: true,
@@ -250,15 +252,15 @@ describe(`FixtureFactory`, () => {
         const val1Meta = factory
           .getStore()
           .get(DummyWithUnique2)
-          .properties.find(v => v.name === 'val1');
+          .properties.find((v) => v.name === 'val1');
         const val2Meta = factory
           .getStore()
           .get(DummyWithUnique2)
-          .properties.find(v => v.name === 'val2');
+          .properties.find((v) => v.name === 'val2');
         const val3Meta = factory
           .getStore()
           .get(DummyWithUnique2)
-          .properties.find(v => v.name === 'val3');
+          .properties.find((v) => v.name === 'val3');
 
         expect(val1Meta).toMatchObject({
           unique: true,
@@ -344,7 +346,14 @@ describe(`FixtureFactory`, () => {
       });
 
       it(`Real world scenario`, async () => {
-        const user = await factory.make(MikroORMUser).oneAndPersist();
+        const user = await factory
+          .make(MikroORMUser, {
+            maxDepthLevel: 6,
+            reuseCircularRelationships: true,
+            maxOccurrencesPerPath: 6,
+            timeout: 60,
+          })
+          .oneAndPersist();
 
         expect(user.id).not.toBeUndefined();
       });

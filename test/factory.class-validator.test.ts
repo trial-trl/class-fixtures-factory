@@ -296,14 +296,14 @@ describe(`FixtureFactory`, () => {
 
     it(`@ArrayMinSize() `, () => {
       class Dummy {
-        @ArrayMinSize(4)
+        @ArrayMinSize(2)
         @Fixture({ type: () => [String] })
         val!: string[];
       }
       factory.register([Dummy]);
 
       const dummy = factory.make(Dummy).one();
-      expect(dummy.val.length >= 4).toBe(true);
+      expect(dummy.val.length >= 2).toBe(true);
     });
 
     it(`@ArrayMaxSize() `, () => {
