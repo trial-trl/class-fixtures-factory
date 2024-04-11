@@ -3,14 +3,63 @@ import { Fixture } from '../src/decorators/Fixture';
 import { factory } from './fixtures';
 
 describe(`FixtureFactory`, () => {
-  it(`makes metadata of registered entities`, () => {
-    class DummyAuthor {}
-    class DummyBook {}
+  describe(`metadata`, () => {
+    it(`makes metadata of registered entities`, () => {
+      class DummyAuthor {}
+      class DummyBook {}
 
-    factory.register([DummyAuthor, DummyBook]);
+      factory.register([DummyAuthor, DummyBook]);
 
-    expect(factory.getStore().get(DummyAuthor)).toBeDefined();
-    expect(factory.getStore().get(DummyBook)).toBeDefined();
+      expect(factory.getStore().get(DummyAuthor)).toBeDefined();
+      expect(factory.getStore().get(DummyBook)).toBeDefined();
+    });
+
+    it(`sort metadata properties by dependency graph`, () => {
+      class Dummy {
+        @Fixture({ dependsOn: ['second'] })
+        third!: string;
+
+        @Fixture({ dependsOn: ['third'] })
+        sixth!: string;
+
+        @Fixture()
+        first!: string;
+
+        @Fixture({ dependsOn: ['fifth'] })
+        second!: string;
+
+        @Fixture({ dependsOn: ['third'] })
+        fourth!: string;
+
+        @Fixture()
+        fifth!: string;
+      }
+
+      factory.register([Dummy]);
+
+      expect(
+        factory
+          .getStore()
+          .get(Dummy)
+          .properties.map((prop) => prop.name)
+      ).toEqual(['fifth', 'second', 'third', 'sixth', 'fourth', 'first']);
+    });
+
+    it(`resolve properties based on its dependencies`, () => {
+      class Dummy {
+        @Fixture({ get: (faker, age) => age >= 18, dependsOn: ['age'] })
+        isAdult!: boolean;
+
+        @Fixture((faker) => faker.number.int({ min: 0, max: 100 }))
+        age!: number;
+      }
+
+      factory.register([Dummy]);
+
+      const result = factory.make(Dummy).one();
+      result.age; // when run through factory-lazy, we need to access the prop to generate it
+      expect(result.isAdult).toBe(result.age >= 18);
+    });
   });
 
   describe(`factory result`, () => {
@@ -150,7 +199,7 @@ describe(`FixtureFactory`, () => {
 
     it(`@Fixture(faker => string)`, () => {
       class Person {
-        @Fixture(faker => faker?.name.lastName())
+        @Fixture((faker) => faker?.name.lastName())
         lastName!: string;
       }
       factory.register([Person]);

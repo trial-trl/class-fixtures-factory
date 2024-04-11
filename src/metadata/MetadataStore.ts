@@ -1,5 +1,5 @@
 import { Class } from '../common/typings';
-import reflect, { PropertyReflection } from 'tinspector';
+import reflect, { ClassReflection, PropertyReflection } from 'tinspector';
 import { FixtureOptions } from '../decorators/Fixture';
 import { getEnumValues } from '../common/utils';
 import {
@@ -39,6 +39,7 @@ export interface PropertyMetadata {
   maxOccurrencesPerPath?: number | ((value: number) => number);
   unique?: boolean;
   uniqueCacheKey?: string;
+  dependsOn?: string[];
 }
 
 export class MetadataStore {
@@ -72,6 +73,12 @@ export class MetadataStore {
     options?: DeepRequired<FactoryOptions>
   ): ClassMetadata {
     const reflectMetadata = reflect(classType);
+
+    /**
+     * Sorting by dependency graph
+     */
+    const sortedProperties = this.resolveDependencies(reflectMetadata);
+
     /**
      * Metadata from adapters
      */
@@ -89,7 +96,7 @@ export class MetadataStore {
     /**
      * Metadata from reflection
      */
-    let reflectProps = reflectMetadata.properties
+    let reflectProps = sortedProperties
       .map((prop) => this.makePropertyMetadata(prop)!)
       .filter(Boolean);
 
@@ -184,7 +191,10 @@ export class MetadataStore {
             ignore: true,
           } as PropertyMetadata;
         }
-        meta.input = decorator.get;
+        meta.input = decorator.get?.bind(
+          decorator.get,
+          require('@faker-js/faker').faker
+        );
         if (
           typeof decorator.min === 'number' ||
           typeof decorator.max === 'number'
@@ -200,6 +210,7 @@ export class MetadataStore {
             meta.min
           );
         }
+        meta.dependsOn = decorator.dependsOn;
         meta.precision = decorator.precision;
         meta.maxDepthLevel = decorator.maxDepthLevel;
         meta.reuseCircularRelationships = decorator.reuseCircularRelationships;
@@ -253,5 +264,57 @@ export class MetadataStore {
 
   private getFixtureDecorator(prop: PropertyReflection): FixtureOptions {
     return prop.decorators.find((v) => v.type === 'Fixture')?.value || null;
+  }
+
+  private resolveDependencies(reflectMetadata: ClassReflection) {
+    const dependencyGraph: Record<string, string[]> = {};
+    reflectMetadata.properties.forEach((prop) => {
+      const decorator = this.getFixtureDecorator(prop);
+      if (
+        decorator &&
+        typeof decorator === 'object' &&
+        decorator.dependsOn &&
+        decorator.dependsOn.length > 0
+      )
+        dependencyGraph[prop.name] = decorator.dependsOn;
+    });
+
+    const sortedProperties: string[] = [];
+
+    function visit(prop: string, ancestors: string[] = []) {
+      ancestors.push(prop);
+      const dependencies = dependencyGraph[prop] || [];
+      dependencies.forEach((dep: string) => {
+        if (ancestors.indexOf(dep) !== -1) {
+          throw new Error(
+            `Circular dependency detected: ${dep} depends on ${prop}`
+          );
+        }
+        if (sortedProperties.indexOf(dep) === -1) {
+          visit(dep, ancestors.slice());
+        }
+      });
+      if (sortedProperties.indexOf(prop) === -1) {
+        sortedProperties.push(prop);
+      }
+    }
+
+    Object.keys(dependencyGraph).forEach((prop: string) => {
+      if (sortedProperties.indexOf(prop) === -1) {
+        visit(prop);
+      }
+    });
+
+    const resolvedProperties = sortedProperties.map(
+      (sortedProp) =>
+        reflectMetadata.properties.find((prop) => prop.name === sortedProp)!
+    );
+
+    return resolvedProperties.concat(
+      reflectMetadata.properties.filter(
+        (prop) =>
+          !resolvedProperties.find((sorted) => sorted.name === prop.name)
+      )
+    );
   }
 }

@@ -16,6 +16,7 @@ seeding or for testing.
   - [General](#general)
   - [Using `class-validator` metadatas](#using-class-validator-metadatas)
   - [Customization](#customization)
+  - [Property dependencies](#property-dependencies)
   - [Factory Options](#factory-options)
     - [Assigner](#assigner)
   - [API](#api)
@@ -25,6 +26,7 @@ seeding or for testing.
 - Generate fixtures on the fly at runtime
 - Leverage `faker.js` for generating random values
 - Support relationships between classes
+- Support property dependencies
 - Customizable
 - Support `class-validator@0.14.x` decorators. (`type-graphql` to come at a latter date)  
 
@@ -139,6 +141,29 @@ export class Author extends BaseEntity {
   @IsString()
   @Fixture({ ignore: true })
   hiddenName: string;
+}
+```
+
+### Property dependencies
+
+You can also declare dependencies that your class property lies upon to have its value generated.
+
+With the `dependsOn` option in `Fixture`, a property can mark other instance
+property as its dependency. All dependencies are resolved before the property itself, and the resolved values can be used in `Fixture` generator.
+
+```ts
+export class Person extends BaseEntity {
+  @Fixture(faker => faker.person.fullName())
+  name!: string;
+
+  @Fixture(faker => faker.number.int({ min: 0, max: 100 }))
+  age!: number;
+
+  @Fixture({ get: (faker, age) => age >= 18, dependsOn: ['age'] })
+  isAdult!: boolean;
+
+  @Fixture({ get: (faker, name, age) => `I'm ${name}, and I'm ${age} years old.`, dependsOn: ['name', 'age'] })
+  bio!: string;
 }
 ```
 

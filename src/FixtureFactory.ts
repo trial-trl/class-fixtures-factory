@@ -295,7 +295,14 @@ export class FixtureFactory {
           const newCtx = this._preparePropertyGeneration(ctx, proxy);
           newCtx.path.push(`${meta.name}.${prop.name}`);
           if (prop.ignore) return undefined;
-          let value = this.makeProperty(prop, meta, newCtx);
+          const resolvedDependencies =
+            prop.dependsOn?.map((dep) => target[dep]) || [];
+          let value = this.makeProperty(
+            prop,
+            meta,
+            newCtx,
+            resolvedDependencies
+          );
           if (typeof value !== 'undefined' && value !== null) {
             value = prop.hooks?.[SECRET].afterValueGenerated?.(value) ?? value;
             this.assigner(prop, object, value);
@@ -312,7 +319,9 @@ export class FixtureFactory {
       const newCtx = this._preparePropertyGeneration(ctx, object);
       newCtx.path.push(`${meta.name}.${prop.name}`);
       if (prop.ignore) continue;
-      let value = this.makeProperty(prop, meta, newCtx);
+      const resolvedDependencies =
+        prop.dependsOn?.map((dep) => object[dep]) || [];
+      let value = this.makeProperty(prop, meta, newCtx, resolvedDependencies);
       if (typeof value !== 'undefined' && value !== null) {
         value = prop.hooks?.[SECRET].afterValueGenerated?.(value) ?? value;
         this.assigner(prop, object, value);
@@ -350,7 +359,8 @@ export class FixtureFactory {
   protected makeProperty(
     prop: PropertyMetadata,
     meta: ClassMetadata,
-    ctx: FactoryContext
+    ctx: FactoryContext,
+    resolvedDependencies: any[] = []
   ): any {
     const convertedPath = ctx.path
       .map((v) => v.split('.').reverse()[0])
@@ -375,7 +385,7 @@ export class FixtureFactory {
     }
     if (prop.input) {
       this.logger.onCustomProp(ctx.path);
-      return prop.input();
+      return prop.input(...resolvedDependencies);
     }
     if (prop.array) {
       this.logger.onGenerateArray(ctx.path);

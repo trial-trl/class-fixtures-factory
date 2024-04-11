@@ -4,7 +4,7 @@ import { decorate } from 'tinspector';
 export type FixtureOptions =
   | string
   // eslint-disable-next-line no-undef
-  | ((faker: Faker) => string | undefined)
+  | ((faker: Faker, ...resolvedDependencies: any[]) => any)
   | (() => any)
   | {
       type?: () => object;
@@ -14,13 +14,16 @@ export type FixtureOptions =
       max?: number | Date;
       precision?: number;
       // eslint-disable-next-line no-undef
-      get?: ((faker: Faker) => string | undefined) | (() => any);
+      get?:
+        | ((faker: Faker, ...resolvedDependencies: any[]) => any)
+        | (() => any);
       maxDepthLevel?: number;
       reuseCircularRelationships?: boolean;
       doNotReuseDirectFriendship?: boolean;
       maxOccurrencesPerPath?: number | ((value: number) => number);
       unique?: boolean;
       uniqueCacheKey?: string;
+      dependsOn?: string[];
     };
 
 /**
