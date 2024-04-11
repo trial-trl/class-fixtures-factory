@@ -108,12 +108,16 @@ export class MetadataStore {
       }
     }
 
-    const allPropNames = [
+    const setProps = [
       ...new Set([
         ...adapterMetadata.map((v) => v.propertyName),
         ...reflectProps.map((v) => v.name),
       ]),
     ];
+
+    const allPropNames = sortedProperties
+      .filter((prop) => setProps.includes(prop.name))
+      .map((prop) => prop.name);
 
     /**
      * Merge with the properties made from the adapter
