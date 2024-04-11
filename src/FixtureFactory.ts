@@ -211,9 +211,14 @@ export class FixtureFactory {
    * Register classes to be used by the factory
    * @param classTypes
    */
-  register(classTypes: Class[]) {
+  register(classTypes: Class[], options: FactoryOptions = {}) {
+    const ctxOptions: DeepRequired<FactoryOptions> = {
+      ...this.options,
+      ...(options || {}),
+    } as DeepRequired<FactoryOptions>;
+
     for (const classType of classTypes) {
-      this.store.make(classType, this.options);
+      this.store.make(classType, ctxOptions);
       this.classTypes[classType.name] = classType;
     }
   }
@@ -237,7 +242,6 @@ export class FixtureFactory {
       );
     }
 
-    // TODO: Not needed? Or remake all registered classTypes with ctxOptions?
     this.store.make(classType, ctxOptions);
     const meta = this.store.get(classType);
     const ctx: FactoryContext = {

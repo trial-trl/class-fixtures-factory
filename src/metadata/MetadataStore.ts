@@ -69,7 +69,10 @@ export class MetadataStore {
   /**
    * Make type metadata for a class
    */
-  make(classType: Class, options: DeepRequired<FactoryOptions> = FixtureFactory.DEFAULT_OPTIONS): ClassMetadata {
+  make(
+    classType: Class,
+    options: DeepRequired<FactoryOptions> = FixtureFactory.DEFAULT_OPTIONS
+  ): ClassMetadata {
     const reflectMetadata = reflect(classType);
 
     /**

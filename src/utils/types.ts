@@ -1,7 +1,7 @@
 import { Faker } from '@faker-js/faker';
 
 // eslint-disable-next-line prettier/prettier
-type DotPrefix<T extends string> = T extends "" ? "" : `.${T}`;
+type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`;
 
 export type DeepKeyOf<T> = (
   [T] extends [never]
@@ -31,7 +31,7 @@ export type DeepRequired<T> = {
     ? Array<DeepRequired<U>>
     : T[P] extends ReadonlyArray<infer U>
       ? ReadonlyArray<DeepRequired<U>>
-      : T[P] extends object
-        ? T[P]
-        : DeepRequired<T[P]>;
+      : T[P] extends string | number | boolean
+        ? DeepRequired<T[P]>
+        : T[P];
 };
