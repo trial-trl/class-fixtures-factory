@@ -1,3 +1,4 @@
+import type { Faker } from '@faker-js/faker';
 import { Class } from '../common/typings';
 import reflect, { ClassReflection, PropertyReflection } from 'tinspector';
 import { FixtureOptions } from '../decorators/Fixture';
@@ -68,10 +69,7 @@ export class MetadataStore {
   /**
    * Make type metadata for a class
    */
-  make(
-    classType: Class,
-    options?: DeepRequired<FactoryOptions>
-  ): ClassMetadata {
+  make(classType: Class, options: DeepRequired<FactoryOptions>): ClassMetadata {
     const reflectMetadata = reflect(classType);
 
     /**
@@ -97,7 +95,7 @@ export class MetadataStore {
      * Metadata from reflection
      */
     let reflectProps = sortedProperties
-      .map((prop) => this.makePropertyMetadata(prop)!)
+      .map((prop) => this.makePropertyMetadata(prop, options)!)
       .filter(Boolean);
 
     for (const reflectProp of reflectProps) {
@@ -168,7 +166,8 @@ export class MetadataStore {
   }
 
   private makePropertyMetadata(
-    prop: PropertyReflection
+    prop: PropertyReflection,
+    options: DeepRequired<FactoryOptions>
   ): PropertyMetadata | null {
     const decorator = this.getFixtureDecorator(prop);
     const meta: Partial<PropertyMetadata> = {
@@ -177,10 +176,7 @@ export class MetadataStore {
     };
     if (decorator) {
       if (typeof decorator === 'function') {
-        meta.input = decorator.bind(
-          decorator,
-          require('@faker-js/faker').faker
-        );
+        meta.input = decorator.bind(decorator, options.fakerInstance as Faker);
       } else if (typeof decorator === 'string') {
         meta.input = () => decorator;
       } else if (typeof decorator === 'object') {
@@ -193,7 +189,7 @@ export class MetadataStore {
         }
         meta.input = decorator.get?.bind(
           decorator.get,
-          require('@faker-js/faker').faker
+          options.fakerInstance as Faker
         );
         if (
           typeof decorator.min === 'number' ||

@@ -182,6 +182,15 @@ The `options` parameter can take:
   Whether to print generated objects or no.
   ![](debug.png)
 
+* `fakerInstance` (Faker)
+  Faker instance to be used. Useful for localized data generation
+  ```ts
+  import { fakerPT_BR } from '@faker-js/faker';
+  
+  const result = factory.make(DummyClass, {
+    fakerInstance: fakerPT_BR,
+  }).one();
+  ```
 
 #### Assigner
 

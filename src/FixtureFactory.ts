@@ -1,6 +1,6 @@
 import { MetadataStore, ClassMetadata, PropertyMetadata } from './metadata';
 import { Class } from './common/typings';
-import { faker } from '@faker-js/faker';
+import { Faker, faker } from '@faker-js/faker';
 import chalk from 'chalk';
 import { FactoryLogger } from './FactoryLogger';
 import { DeepKeyOf, DeepRequired } from 'utils/types';
@@ -109,6 +109,10 @@ export interface FactoryOptions {
    * A context to pass to registered metadata adapters
    */
   adapterContext?: any;
+  /**
+   * Faker instance to be used. Useful for localized data generation
+   */
+  fakerInstance?: Faker;
 }
 
 export interface FactoryContext {
@@ -151,6 +155,7 @@ export class FixtureFactory {
     timeout: 3,
     lazy: false,
     partialResultOnError: false,
+    fakerInstance: require('@faker-js/faker').faker,
   };
   static registerFactoryOptions(opts: Record<string, any>) {
     Object.assign(FixtureFactory.DEFAULT_OPTIONS, opts);
@@ -160,7 +165,7 @@ export class FixtureFactory {
     this.options = {
       ...FixtureFactory.DEFAULT_OPTIONS,
       ...(options || {}),
-    };
+    } as DeepRequired<FactoryOptions>;
     this.store = new MetadataStore(options?.adapterContext || {});
   }
 
@@ -168,7 +173,7 @@ export class FixtureFactory {
     this.options = {
       ...FixtureFactory.DEFAULT_OPTIONS,
       ...(options || {}),
-    };
+    } as DeepRequired<FactoryOptions>;
   }
 
   private defaultAssigner(prop: PropertyMetadata, object: any, value: any) {
@@ -221,7 +226,7 @@ export class FixtureFactory {
     const ctxOptions: DeepRequired<FactoryOptions> = {
       ...this.options,
       ...(options || {}),
-    };
+    } as DeepRequired<FactoryOptions>;
 
     if (
       ctxOptions.maxDepthLevel === Infinity &&

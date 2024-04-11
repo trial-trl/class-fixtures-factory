@@ -1,3 +1,4 @@
+import { fakerPT_BR } from '@faker-js/faker';
 import { FixtureFactory, Assigner } from '../src/FixtureFactory';
 import { Fixture } from '../src/decorators/Fixture';
 import { factory } from './fixtures';
@@ -182,6 +183,20 @@ describe(`FixtureFactory`, () => {
         expect(result.books[0].title).not.toBe('foo');
         expect(result.books[1].title).toBe('foo');
       });
+    });
+
+    it(`make().one() with custom Faker instance`, () => {
+      class DummyAuthor {
+        @Fixture()
+        name!: string;
+      }
+      factory.register([DummyAuthor]);
+
+      const result = factory.make(DummyAuthor, {
+        fakerInstance: fakerPT_BR,
+      });
+      expect(typeof result.one).toBe('function');
+      expect(result.one()).toBeInstanceOf(DummyAuthor);
     });
   });
 
