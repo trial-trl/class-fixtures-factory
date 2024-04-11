@@ -2,19 +2,25 @@ import { BaseMetadataAdapter, PropertyMetadata } from '../../metadata';
 import { getMetadataStorage, ID, Int, Float } from 'type-graphql';
 import { GraphQLScalarType } from 'graphql';
 import { FieldMetadata as BaseFieldMetadata } from 'type-graphql/dist/metadata/definitions';
-import { Class } from '../..';
-import { faker } from '@faker-js/faker';
+import { Class, FactoryOptions } from '../..';
 import { MetadataStorage } from 'type-graphql/dist/metadata/metadata-storage';
 import { FactoryHooks } from '../../FactoryHooks';
+import { DeepRequired } from 'utils';
 
 interface FieldMetadata extends BaseFieldMetadata {
   propertyName: string;
 }
 
 export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
+  private options!: DeepRequired<FactoryOptions>;
   private store!: MetadataStorage;
 
-  makeOwnMetadata(classType: Class): FieldMetadata[] {
+  makeOwnMetadata(
+    classType: Class,
+    adapterContext: any,
+    options?: DeepRequired<FactoryOptions>
+  ): FieldMetadata[] {
+    this.options = options!;
     const store = (this.store = getMetadataStorage());
     const objectType = store.objectTypes.find((v) => v.target === classType);
     const fields = store.fields.filter((v) => v.target === classType);
@@ -44,7 +50,9 @@ export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
 
     switch (gqlType) {
       case ID:
-        propHooks.setOnGenerateScalar(() => faker.string.uuid());
+        propHooks.setOnGenerateScalar(() =>
+          this.options.fakerInstance.string.uuid()
+        );
         return {
           ...prop,
           type: 'string',
@@ -58,7 +66,7 @@ export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
       case Float:
         // TODO: supports min-max
         propHooks.setOnGenerateScalar(() =>
-          faker.number.float({
+          this.options.fakerInstance.number.float({
             precision: 0.01,
           })
         );
@@ -114,7 +122,7 @@ export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
        */
       // TODO: use prop.items instead
       propHooks.setOnGenerateScalar(() =>
-        faker.helpers.arrayElement(
+        this.options.fakerInstance.helpers.arrayElement(
           Object.entries(gqlType as Record<string, string | number>)
             .filter(([_, value]) => typeof value === 'string')
             .map(([_, value]) => value)

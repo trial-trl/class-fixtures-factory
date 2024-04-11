@@ -9,7 +9,7 @@ import {
 } from './BaseMetadataAdapter';
 import { FactoryHooks } from '../FactoryHooks';
 import { DeepRequired } from '../utils';
-import { FactoryOptions } from '..';
+import { FactoryOptions, FixtureFactory } from '..';
 
 export interface ClassMetadata {
   name: string;
@@ -69,7 +69,7 @@ export class MetadataStore {
   /**
    * Make type metadata for a class
    */
-  make(classType: Class, options: DeepRequired<FactoryOptions>): ClassMetadata {
+  make(classType: Class, options: DeepRequired<FactoryOptions> = FixtureFactory.DEFAULT_OPTIONS): ClassMetadata {
     const reflectMetadata = reflect(classType);
 
     /**
@@ -95,7 +95,7 @@ export class MetadataStore {
      * Metadata from reflection
      */
     let reflectProps = sortedProperties
-      .map((prop) => this.makePropertyMetadata(prop, options)!)
+      .map((prop) => this.makePropertyMetadata(prop, options!)!)
       .filter(Boolean);
 
     for (const reflectProp of reflectProps) {

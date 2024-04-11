@@ -1,12 +1,19 @@
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
 import { getMetadataStorage } from 'class-validator';
-import { faker } from '@faker-js/faker';
 import { PropertyMetadata } from '../../metadata';
-import { Class } from '../..';
+import { Class, FactoryOptions } from '../..';
 import { BaseMetadataAdapter } from '../../metadata/BaseMetadataAdapter';
 import { FactoryHooks } from 'FactoryHooks';
+import { DeepRequired } from 'utils';
 export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadata> {
-  makeOwnMetadata(classType: Class) {
+  private options!: DeepRequired<FactoryOptions>;
+
+  makeOwnMetadata(
+    classType: Class,
+    adapterContext: any,
+    options?: DeepRequired<FactoryOptions>
+  ) {
+    this.options = options!;
     return getMetadataStorage().getTargetValidationMetadatas(
       classType,
       '',
@@ -106,7 +113,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
         const value = cvMeta.constraints[0];
         propHooks.setOnGenerateScalar((_min?: number, _max?: number) => {
           // TODO: support min/max
-          return `${faker.lorem.word()}${value}${faker.lorem.word()}`;
+          return `${this.options.fakerInstance.lorem.word()}${value}${this.options.fakerInstance.lorem.word()}`;
         });
         prop.type = 'string';
         prop.scalar = true;
@@ -114,7 +121,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
       }
       case 'isAlpha':
         propHooks.addAfterValueGenerated((value: string) =>
-          value.replace(/\d/g, faker.lorem.word()[0])
+          value.replace(/\d/g, this.options.fakerInstance.lorem.word()[0])
         );
         prop.type = 'string';
         prop.scalar = true;
@@ -129,31 +136,41 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
         prop.scalar = true;
         propHooks.setOnGenerateScalar((min?: number, max?: number) => {
           const digits = Number(data.decimal_digits || '1');
-          return parseFloat(faker.finance.amount({ min, max, dec: digits }));
+          return parseFloat(
+            this.options.fakerInstance.finance.amount({ min, max, dec: digits })
+          );
         });
         break;
       }
       case 'isEmail':
-        propHooks.setOverride(() => faker.internet.email());
+        propHooks.setOverride(() =>
+          this.options.fakerInstance.internet.email()
+        );
         return {
           ...prop,
           type: 'string',
           scalar: true,
         };
       case 'isFqdn':
-        propHooks.setOverride(() => faker.internet.domainName());
+        propHooks.setOverride(() =>
+          this.options.fakerInstance.internet.domainName()
+        );
         return {
           ...prop,
           type: 'string',
           scalar: true,
         };
       case 'isHexColor':
-        propHooks.setOverride(() => faker.internet.color());
+        propHooks.setOverride(() =>
+          this.options.fakerInstance.internet.color()
+        );
         prop.type = 'string';
         prop.scalar = true;
         break;
       case 'isHexadecimal':
-        propHooks.setOverride(() => faker.string.hexadecimal());
+        propHooks.setOverride(() =>
+          this.options.fakerInstance.string.hexadecimal()
+        );
         prop.type = 'string';
         prop.scalar = true;
         break;
@@ -213,57 +230,67 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
         break;
       }
       case 'isLatitude': {
-        propHooks.setOverride(() => faker.location.latitude());
+        propHooks.setOverride(() =>
+          this.options.fakerInstance.location.latitude()
+        );
         prop.type = 'number';
         prop.scalar = true;
         break;
       }
       case 'isLongitude': {
-        propHooks.setOverride(() => faker.location.longitude());
+        propHooks.setOverride(() =>
+          this.options.fakerInstance.location.longitude()
+        );
         prop.type = 'number';
         prop.scalar = true;
         break;
       }
       case 'isUrl': {
-        propHooks.setOverride(() => faker.internet.url());
+        propHooks.setOverride(() => this.options.fakerInstance.internet.url());
         prop.type = 'number';
         prop.scalar = true;
         break;
       }
       case 'isPhoneNumber':
       case 'isMobilePhone': {
-        propHooks.setOverride(() => faker.phone.number());
+        propHooks.setOverride(() => this.options.fakerInstance.phone.number());
         prop.type = 'string';
         prop.scalar = true;
         break;
       }
       case 'isDateString': {
-        propHooks.setOverride(() => faker.date.recent().toISOString());
+        propHooks.setOverride(() =>
+          this.options.fakerInstance.date.recent().toISOString()
+        );
         prop.type = 'string';
         prop.scalar = true;
         break;
       }
       case 'isUuid': {
-        propHooks.setOverride(() => faker.string.uuid());
+        propHooks.setOverride(() => this.options.fakerInstance.string.uuid());
         prop.type = 'string';
         prop.scalar = true;
         break;
       }
       case 'isCurrency': {
-        propHooks.setOverride(() => faker.finance.amount());
+        propHooks.setOverride(() =>
+          this.options.fakerInstance.finance.amount()
+        );
         prop.type = 'string';
         prop.scalar = true;
         break;
       }
       case 'isCreditCard': {
-        propHooks.setOverride(() => faker.finance.creditCardNumber());
+        propHooks.setOverride(() =>
+          this.options.fakerInstance.finance.creditCardNumber()
+        );
         prop.type = 'string';
         prop.scalar = true;
         break;
       }
       case 'isStrongPassword': {
         propHooks.setOverride(() =>
-          faker.internet.password({
+          this.options.fakerInstance.internet.password({
             length: 24,
             pattern: /[a-zA-Z0-9!@#$%^&*()\\/-_+]/,
           })
@@ -273,13 +300,17 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
         break;
       }
       case 'isPostalCode': {
-        propHooks.setOverride(() => faker.location.zipCode());
+        propHooks.setOverride(() =>
+          this.options.fakerInstance.location.zipCode()
+        );
         prop.type = 'string';
         prop.scalar = true;
         break;
       }
       case 'isMongoId': {
-        propHooks.setOverride(() => faker.database.mongodbObjectId());
+        propHooks.setOverride(() =>
+          this.options.fakerInstance.database.mongodbObjectId()
+        );
         prop.type = 'string';
         prop.scalar = true;
         break;
