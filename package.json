@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "2.0.1",
   "name": "@trial-trl/class-fixtures-factory",
   "author": "Matheus Leonardo <mlsm@trialent.com>",
   "license": "MIT",
@@ -24,7 +24,7 @@
     "type": "git",
     "url": "git+https://github.com/trial-trl/class-fixtures-factory.git"
   },
-  "main": "dist/class-fixtures-factory.cjs.js",
+  "main": "dist/trial-trl-class-fixtures-factory.cjs.js",
   "typings": "dist/class-fixtures-factory.cjs.d.ts",
   "files": [
     "dist",
@@ -51,7 +51,7 @@
     "prepublish": "yarn build",
     "docs:api": "api-extractor run --local --verbose && cd docs && api-documenter markdown"
   },
-  "module": "dist/class-fixtures-factory.esm.js",
+  "module": "dist/trial-trl-class-fixtures-factory.esm.js",
   "devDependencies": {
     "@babel/preset-typescript": "^7.13.0",
     "@commitlint/cli": "^8.3.4",
