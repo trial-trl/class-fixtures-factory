@@ -1,5 +1,5 @@
 {
-  "version": "2.0.1",
+  "version": "2.0.2",
   "name": "@trial-trl/class-fixtures-factory",
   "author": "Matheus Leonardo <mlsm@trialent.com>",
   "license": "MIT",
@@ -25,7 +25,7 @@
     "url": "git+https://github.com/trial-trl/class-fixtures-factory.git"
   },
   "main": "dist/trial-trl-class-fixtures-factory.cjs.js",
-  "typings": "dist/class-fixtures-factory.cjs.d.ts",
+  "typings": "dist/trial-trl-class-fixtures-factory.cjs.d.ts",
   "files": [
     "dist",
     "plugins/class-validator",
