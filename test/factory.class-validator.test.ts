@@ -50,6 +50,7 @@ import {
   IsMongoId,
   isMongoId,
 } from 'class-validator';
+import { IsFullName } from './custom-decorators/IsFullName';
 import '../src/plugins/class-validator';
 
 describe(`FixtureFactory`, () => {
@@ -64,6 +65,26 @@ describe(`FixtureFactory`, () => {
       expect(() => factory.register([Dummy])).toThrow(
         `Couldn't extract the type of "val". Use @Fixture({ type: () => Foo })`
       );
+    });
+
+    it(`make().one() with custom validation decorators`, () => {
+      class DummyPerson {
+        @IsFullName()
+        name!: string;
+      }
+      factory.register([DummyPerson], {
+        customValidators(faker, prop, _reflectProp, cvMeta, propHooks) {
+          switch (cvMeta.name) {
+            case 'isFullName':
+              propHooks.setOverride(() => faker.person.fullName());
+              prop.type = 'string';
+              break;
+          }
+        },
+      });
+
+      const result = factory.make(DummyPerson).one();
+      expect(result.name).toMatch(/\s/);
     });
 
     it(`@Fixture({ ignore: true }) takes precedence`, () => {

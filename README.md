@@ -15,6 +15,7 @@ seeding or for testing.
 - [Usage](#usage)
   - [General](#general)
   - [Using `class-validator` metadatas](#using-class-validator-metadatas)
+  - [Using `class-validator` custom validators](#using-class-validator-custom-validators)
   - [Customization](#customization)
   - [Property dependencies](#property-dependencies)
   - [Factory Options](#factory-options)
@@ -77,6 +78,52 @@ import 'class-fixtures-factory/plugins/class-validator';
 ```
 
 Note that this will require having `class-validator` version `0.14` or higher to be installed.
+
+### Using `class-validator` custom validators
+
+If you declare custom `class-validator` validators, you can hook into metadata extraction to override data generation for the property.
+
+```ts
+function IsFullName(validationOptions?: ValidationOptions) {
+  return (object: Object, propertyName: string) => {
+    registerDecorator({
+      target: object.constructor,
+      name: 'isFullName',
+      propertyName,
+      options: validationOptions,
+      constraints: [],
+      validator: {
+        validate(value: any, validationArguments: ValidationArguments) {
+          return contains(value, ' ');
+        },
+        defaultMessage(validationArguments: ValidationArguments) {
+          return 'Invalid full name';
+        }
+      },
+    });
+  };
+}
+
+class DummyPerson {
+  @IsFullName()
+  name!: string;
+}
+
+factory.setOptions({
+  customValidators(faker, prop, _reflectProp, cvMeta, propHooks) {
+    switch (cvMeta.name) {
+      case 'isFullName':
+        propHooks.setOverride(() => faker.person.fullName());
+        prop.type = 'string';
+        break;
+    }
+  },
+})
+
+factory.make(DummyPerson).one();
+```
+
+You can view the source code to learn how to override metadata declaration.
 
 ### Customization
 

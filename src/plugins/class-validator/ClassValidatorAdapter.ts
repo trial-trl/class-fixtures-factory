@@ -28,6 +28,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
     propHooks: FactoryHooks
   ): Partial<PropertyMetadata> {
     const faker = this.options.fakerInstance;
+    const customValidators = this.options.customValidators;
 
     const prop: Partial<PropertyMetadata> = {
       name: cvMeta.propertyName,
@@ -297,6 +298,17 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
 
     if (!prop.type && _reflectProp?.type) {
       prop.type = _reflectProp.type;
+    }
+
+    if (customValidators) {
+      const customProp = customValidators(
+        faker,
+        prop,
+        _reflectProp,
+        cvMeta,
+        propHooks
+      );
+      if (customProp) return customProp;
     }
 
     return prop;

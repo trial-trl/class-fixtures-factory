@@ -1,4 +1,5 @@
 import type { Faker } from '@faker-js/faker';
+import type { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
 import { MetadataStore, ClassMetadata, PropertyMetadata } from './metadata';
 import { Class } from './common/typings';
 import chalk from 'chalk';
@@ -6,6 +7,7 @@ import { FactoryLogger } from './FactoryLogger';
 import { DeepKeyOf, DeepRequired } from 'utils/types';
 import { SECRET } from './internals';
 import { FactoryResult } from './FactoryResult';
+import type { FactoryHooks } from './FactoryHooks';
 
 export type Assigner = (
   prop: PropertyMetadata,
@@ -113,6 +115,18 @@ export interface FactoryOptions {
    * Faker instance to be used. Useful for localized data generation
    */
   fakerInstance?: Faker;
+  /**
+   * Allow to process user-defined class-validator decorators
+   */
+  customValidators?:
+    | ((
+        faker: Faker,
+        prop: Partial<PropertyMetadata>,
+        _reflectProp: Readonly<PropertyMetadata> | undefined,
+        cvMeta: Readonly<ValidationMetadata>,
+        propHooks: FactoryHooks
+      ) => Partial<PropertyMetadata> | void)
+    | null;
 }
 
 export interface FactoryContext {
