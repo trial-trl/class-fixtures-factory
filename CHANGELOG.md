@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.2.2](https://github.com/trial-trl/class-fixtures-factory/compare/v2.2.1...v2.2.2) (2024-04-11)
+
+
+### Bug Fixes
+
+* **metadata:** concat missing properties after sorting ([40d515e](https://github.com/trial-trl/class-fixtures-factory/commit/40d515ed680340712f0a33e716d1eb0a24360496))
+
 ### [2.2.1](https://github.com/trial-trl/class-fixtures-factory/compare/v2.2.0...v2.2.1) (2024-04-11)
 
 
