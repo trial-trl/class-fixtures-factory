@@ -111,15 +111,9 @@ export class MikroORMAdapter extends BaseMetadataAdapter<Metadata> {
     }
 
     if (meta.primary) {
-      if (this.options?.handlePrimaryColumns) {
-        return {
-          ...prop,
-          type,
-          unique: true,
-          scalar: true,
-        };
+      if (!this.options?.handlePrimaryColumns) {
+        propHooks.setOverride(() => undefined);
       }
-      propHooks.setOverride(() => undefined);
       return {
         ...prop,
         type,

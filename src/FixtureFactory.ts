@@ -242,7 +242,9 @@ export class FixtureFactory {
       );
     }
 
-    this.store.make(classType, ctxOptions);
+    // If class is already registered, do not register again, except if using new options
+    if (!this.classTypes[classType.name] || Object.keys(options).length > 0)
+      this.store.make(classType, ctxOptions);
     const meta = this.store.get(classType);
     const ctx: FactoryContext = {
       depthLevel: 0,
