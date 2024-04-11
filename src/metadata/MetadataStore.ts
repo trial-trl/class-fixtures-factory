@@ -115,9 +115,13 @@ export class MetadataStore {
       ]),
     ];
 
-    const allPropNames = sortedProperties
+    const propNames: string[] = sortedProperties
       .filter((prop) => setProps.includes(prop.name))
       .map((prop) => prop.name);
+
+    const allPropNames = propNames.concat(
+      setProps.filter((name) => !propNames.includes(name))
+    );
 
     /**
      * Merge with the properties made from the adapter
