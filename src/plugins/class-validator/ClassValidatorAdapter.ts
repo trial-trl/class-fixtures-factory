@@ -27,6 +27,8 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
     cvMeta: Readonly<ValidationMetadata>,
     propHooks: FactoryHooks
   ): Partial<PropertyMetadata> {
+    const faker = this.options.fakerInstance;
+
     const prop: Partial<PropertyMetadata> = {
       name: cvMeta.propertyName,
     };
@@ -113,7 +115,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
         const value = cvMeta.constraints[0];
         propHooks.setOnGenerateScalar((_min?: number, _max?: number) => {
           // TODO: support min/max
-          return `${this.options.fakerInstance.lorem.word()}${value}${this.options.fakerInstance.lorem.word()}`;
+          return `${faker.lorem.word()}${value}${faker.lorem.word()}`;
         });
         prop.type = 'string';
         prop.scalar = true;
@@ -121,7 +123,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
       }
       case 'isAlpha':
         propHooks.addAfterValueGenerated((value: string) =>
-          value.replace(/\d/g, this.options.fakerInstance.lorem.word()[0])
+          value.replace(/\d/g, faker.lorem.word()[0])
         );
         prop.type = 'string';
         prop.scalar = true;
@@ -137,14 +139,14 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
         propHooks.setOnGenerateScalar((min?: number, max?: number) => {
           const digits = Number(data.decimal_digits || '1');
           return parseFloat(
-            this.options.fakerInstance.finance.amount({ min, max, dec: digits })
+            faker.finance.amount({ min, max, dec: digits })
           );
         });
         break;
       }
       case 'isEmail':
         propHooks.setOverride(() =>
-          this.options.fakerInstance.internet.email()
+          faker.internet.email()
         );
         return {
           ...prop,
@@ -153,7 +155,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
         };
       case 'isFqdn':
         propHooks.setOverride(() =>
-          this.options.fakerInstance.internet.domainName()
+          faker.internet.domainName()
         );
         return {
           ...prop,
@@ -162,14 +164,14 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
         };
       case 'isHexColor':
         propHooks.setOverride(() =>
-          this.options.fakerInstance.internet.color()
+          faker.internet.color()
         );
         prop.type = 'string';
         prop.scalar = true;
         break;
       case 'isHexadecimal':
         propHooks.setOverride(() =>
-          this.options.fakerInstance.string.hexadecimal()
+          faker.string.hexadecimal()
         );
         prop.type = 'string';
         prop.scalar = true;
@@ -231,7 +233,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
       }
       case 'isLatitude': {
         propHooks.setOverride(() =>
-          this.options.fakerInstance.location.latitude()
+          faker.location.latitude()
         );
         prop.type = 'number';
         prop.scalar = true;
@@ -239,42 +241,42 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
       }
       case 'isLongitude': {
         propHooks.setOverride(() =>
-          this.options.fakerInstance.location.longitude()
+          faker.location.longitude()
         );
         prop.type = 'number';
         prop.scalar = true;
         break;
       }
       case 'isUrl': {
-        propHooks.setOverride(() => this.options.fakerInstance.internet.url());
+        propHooks.setOverride(() => faker.internet.url());
         prop.type = 'number';
         prop.scalar = true;
         break;
       }
       case 'isPhoneNumber':
       case 'isMobilePhone': {
-        propHooks.setOverride(() => this.options.fakerInstance.phone.number());
+        propHooks.setOverride(() => faker.phone.number());
         prop.type = 'string';
         prop.scalar = true;
         break;
       }
       case 'isDateString': {
         propHooks.setOverride(() =>
-          this.options.fakerInstance.date.recent().toISOString()
+          faker.date.recent().toISOString()
         );
         prop.type = 'string';
         prop.scalar = true;
         break;
       }
       case 'isUuid': {
-        propHooks.setOverride(() => this.options.fakerInstance.string.uuid());
+        propHooks.setOverride(() => faker.string.uuid());
         prop.type = 'string';
         prop.scalar = true;
         break;
       }
       case 'isCurrency': {
         propHooks.setOverride(() =>
-          this.options.fakerInstance.finance.amount()
+          faker.finance.amount()
         );
         prop.type = 'string';
         prop.scalar = true;
@@ -282,7 +284,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
       }
       case 'isCreditCard': {
         propHooks.setOverride(() =>
-          this.options.fakerInstance.finance.creditCardNumber()
+          faker.finance.creditCardNumber()
         );
         prop.type = 'string';
         prop.scalar = true;
@@ -290,7 +292,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
       }
       case 'isStrongPassword': {
         propHooks.setOverride(() =>
-          this.options.fakerInstance.internet.password({
+          faker.internet.password({
             length: 24,
             pattern: /[a-zA-Z0-9!@#$%^&*()\\/-_+]/,
           })
@@ -301,7 +303,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
       }
       case 'isPostalCode': {
         propHooks.setOverride(() =>
-          this.options.fakerInstance.location.zipCode()
+          faker.location.zipCode()
         );
         prop.type = 'string';
         prop.scalar = true;
@@ -309,7 +311,7 @@ export class ClassValidatorAdapter extends BaseMetadataAdapter<ValidationMetadat
       }
       case 'isMongoId': {
         propHooks.setOverride(() =>
-          this.options.fakerInstance.database.mongodbObjectId()
+          faker.database.mongodbObjectId()
         );
         prop.type = 'string';
         prop.scalar = true;

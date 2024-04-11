@@ -40,6 +40,8 @@ export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
     ownProp: Readonly<FieldMetadata>,
     propHooks: FactoryHooks
   ): Partial<PropertyMetadata> {
+    const faker = this.options.fakerInstance;
+
     const prop: Partial<PropertyMetadata> = {
       name: ownProp.propertyName,
     };
@@ -51,7 +53,7 @@ export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
     switch (gqlType) {
       case ID:
         propHooks.setOnGenerateScalar(() =>
-          this.options.fakerInstance.string.uuid()
+          faker.string.uuid()
         );
         return {
           ...prop,
@@ -66,7 +68,7 @@ export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
       case Float:
         // TODO: supports min-max
         propHooks.setOnGenerateScalar(() =>
-          this.options.fakerInstance.number.float({
+          faker.number.float({
             precision: 0.01,
           })
         );
@@ -122,7 +124,7 @@ export class TypeGraphQLAdapter extends BaseMetadataAdapter<FieldMetadata> {
        */
       // TODO: use prop.items instead
       propHooks.setOnGenerateScalar(() =>
-        this.options.fakerInstance.helpers.arrayElement(
+        faker.helpers.arrayElement(
           Object.entries(gqlType as Record<string, string | number>)
             .filter(([_, value]) => typeof value === 'string')
             .map(([_, value]) => value)

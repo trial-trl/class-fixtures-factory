@@ -90,6 +90,7 @@
     "typescript": "^5.4.4"
   },
   "peerDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@mikro-orm/core": "^6.0.0",
     "class-validator": "0.11.1",
     "graphql": "^15.5.0",
