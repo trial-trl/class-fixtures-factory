@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/trial-trl/class-fixtures-factory/compare/v2.1.2...v2.2.0) (2024-04-11)
+
+
+### Features
+
+* **metadata:** support `class-validator` custom validators ([618d205](https://github.com/trial-trl/class-fixtures-factory/commit/618d205020da287bea7c89f1389ba82b5d3059e1))
+
+
+### Bug Fixes
+
+* **metadata:** allow set options on register ([672d86c](https://github.com/trial-trl/class-fixtures-factory/commit/672d86c5349c970061857cfe9cdb3f6ce117ff69))
+* **metadata:** do not re-register, except on `factory.register` call ([6897b6e](https://github.com/trial-trl/class-fixtures-factory/commit/6897b6e3c4f38ae255c9853e4eba13664cf9bc1e))
+
 ### [2.1.2](https://github.com/trial-trl/class-fixtures-factory/compare/v2.1.1...v2.1.2) (2024-04-11)
 
 
