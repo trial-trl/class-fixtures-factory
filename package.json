@@ -12,9 +12,17 @@
     "entity",
     "fixtures"
   ],
+  "bugs": {
+    "url": "https://github.com/trial-trl/class-fixtures-factory/issues"
+  },
+  "homepage": "https://github.com/trial-trl/class-fixtures-factory#readme",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/trial-trl/class-fixtures-factory.git"
+    "url": "git+https://github.com/trial-trl/class-fixtures-factory.git"
   },
   "main": "dist/class-fixtures-factory.cjs.js",
   "typings": "dist/class-fixtures-factory.cjs.d.ts",
